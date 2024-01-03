@@ -5,7 +5,7 @@ export interface AddressProps {
   city: string;
   district: string;
   cep: string;
-  number: number;
+  number: string;
   state: string;
   complement?: string | null;
   street: string;

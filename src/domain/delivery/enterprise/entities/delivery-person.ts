@@ -1,9 +1,10 @@
 import { Entity } from 'src/core/entities/entity';
 import { UniqueEntityID } from 'src/core/entities/unique-entity-id';
 import { Optional } from 'src/core/types/optional';
+import { CPF } from './value-object/cpf';
 
 export interface DeliveryPersonProps {
-  cpf: string;
+  cpf: CPF;
   name: string;
   password: string;
   updatedAt?: Date | null;

@@ -17,4 +17,22 @@ export class InMemoryAdminRepository implements AdminRepository {
 
     return admin;
   }
+
+  async delete(admin: Admin) {
+    const newItemList = this.items.filter((item) => !item.id.equals(admin.id));
+
+    this.items = newItemList;
+  }
+
+  async save(admin: Admin) {
+    const findItemIndex = this.items.findIndex((item) =>
+      item.id.equals(admin.id),
+    );
+
+    if (findItemIndex === -1) {
+      return;
+    }
+
+    this.items[findItemIndex] = admin;
+  }
 }

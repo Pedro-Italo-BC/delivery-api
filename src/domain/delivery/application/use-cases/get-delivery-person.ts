@@ -29,12 +29,12 @@ export class GetDeliveryPersonUseCase {
   }: GetDeliveryPersonUseCaseRequest): Promise<GetDeliveryPersonUseCaseResponse> {
     const admin = await this.adminRepository.findById(adminId);
 
-    const deliveryPerson =
-      await this.deliveryPersonRepository.findById(deliveryPersonId);
-
     if (!admin) {
       return left(new NotAllowedError());
     }
+
+    const deliveryPerson =
+      await this.deliveryPersonRepository.findById(deliveryPersonId);
 
     if (!deliveryPerson) {
       return left(new ResourceNotFoundError());

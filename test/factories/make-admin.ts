@@ -1,3 +1,4 @@
+import { CPF } from '@/domain/delivery/enterprise/entities/value-object/cpf';
 import { faker } from '@faker-js/faker';
 import { UniqueEntityID } from 'src/core/entities/unique-entity-id';
 import {
@@ -12,7 +13,7 @@ export function makeAdmin(
 ) {
   const admin = Admin.create(
     {
-      cpf: generateFakeCPF(),
+      cpf: CPF.create(generateFakeCPF()),
       name: faker.person.firstName(),
       password: faker.internet.password(),
       ...override,

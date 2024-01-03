@@ -25,15 +25,16 @@ export class DeleteDeliveryPersonUseCase {
     deliveryPersonId,
   }: DeleteDeliveryPersonUseCaseRequest): Promise<DeleteDeliveryPersonUseCaseResponse> {
     const admin = await this.adminRepository.findById(adminId);
+
+    if (!admin) {
+      return left(new NotAllowedError());
+    }
+
     const deliveryPerson =
       await this.deliveryPersonRepository.findById(deliveryPersonId);
 
     if (!deliveryPerson) {
       return left(new ResourceNotFoundError());
-    }
-
-    if (!admin) {
-      return left(new NotAllowedError());
     }
 
     await this.deliveryPersonRepository.delete(deliveryPerson);

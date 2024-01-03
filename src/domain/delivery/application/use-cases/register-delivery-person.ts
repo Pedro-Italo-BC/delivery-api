@@ -4,6 +4,7 @@ import { DeliveryPerson } from '../../enterprise/entities/delivery-person';
 import { AdminRepository } from '../repositories/admin-repository';
 import { DeliveryPersonRepository } from '../repositories/delivery-person-repository';
 import { HashGenerator } from '../cryptography/hash-generator';
+import { CPF } from '../../enterprise/entities/value-object/cpf';
 
 interface RegisterDeliveryPersonUseCaseRequest {
   adminId: string;
@@ -42,7 +43,7 @@ export class RegisterDeliveryPersonUseCase {
     const hashedPassword = await this.hashGenerator.hash(password);
 
     const deliveryPerson = DeliveryPerson.create({
-      cpf,
+      cpf: CPF.create(cpf),
       name,
       password: hashedPassword,
     });

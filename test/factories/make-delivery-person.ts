@@ -1,3 +1,4 @@
+import { CPF } from '@/domain/delivery/enterprise/entities/value-object/cpf';
 import { faker } from '@faker-js/faker';
 import { UniqueEntityID } from 'src/core/entities/unique-entity-id';
 import { DeliveryPerson } from 'src/domain/delivery/enterprise/entities/delivery-person';
@@ -9,7 +10,7 @@ export function makeDeliveryPerson(
 ) {
   const deliveryPerson = DeliveryPerson.create(
     {
-      cpf: generateFakeCPF(),
+      cpf: CPF.create(generateFakeCPF()),
       name: faker.person.firstName(),
       password: faker.internet.password(),
       ...override,
