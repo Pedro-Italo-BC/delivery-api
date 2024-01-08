@@ -52,7 +52,7 @@ export class EditDeliveryPersonUseCase {
     deliveryPerson.name = name;
     deliveryPerson.password = hashedPassword;
 
-    await this.deliveryPersonRepository.save(deliveryPerson);
+    await this.deliveryPersonRepository.save({ deliveryPerson });
 
     return right({ deliveryPerson });
   }

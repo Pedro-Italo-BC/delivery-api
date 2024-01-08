@@ -1,12 +1,26 @@
 import { OrderRepository } from '@/domain/delivery/application/repositories/order-repository';
 import { Order } from '@/domain/delivery/enterprise/entities/order';
+import { InMemoryOrderAddressRepository } from './in-memory-order-address-repository';
+import { OrderAddress } from '@/domain/delivery/enterprise/entities/order-address';
 
 export class InMemoryOrderRepository implements OrderRepository {
   public items: Order[] = [];
 
-  async create(order: Order) {
+  constructor(
+    private inMemoryOrderAddressRepository: InMemoryOrderAddressRepository,
+  ) {}
+
+  async create({
+    order,
+    orderAddress,
+  }: {
+    order: Order;
+    orderAddress: OrderAddress;
+  }) {
     this.items.push(order);
+    await this.inMemoryOrderAddressRepository.create(orderAddress);
   }
+
   async findById(id: string) {
     const order = this.items.find((item) => item.id.toString() === id);
 
@@ -28,8 +42,12 @@ export class InMemoryOrderRepository implements OrderRepository {
   }
 
   async delete(order: Order): Promise<void> {
-    const newList = this.items.filter((item) => !item.id.equals(order.id));
+    const itemIndex = this.items.findIndex((item) => item.id === order.id);
 
-    this.items = newList;
+    this.items.splice(itemIndex, 1);
+
+    this.inMemoryOrderAddressRepository.deleteManyByOrderId(
+      order.id.toString(),
+    );
   }
 }

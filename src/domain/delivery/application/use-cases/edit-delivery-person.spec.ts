@@ -4,16 +4,22 @@ import { InMemoryAdminRepository } from 'test/repositories/in-memory-admin-repos
 import { FakeHasher } from 'test/cryptography/fake-hasher';
 import { makeAdmin } from 'test/factories/make-admin';
 import { makeDeliveryPerson } from 'test/factories/make-delivery-person';
+import { InMemoryDeliveryPersonAddressRepository } from 'test/repositories/in-memory-delivery-person-address-repository';
 
 let deliveryPersonRepository: InMemoryDeliveryPersonRepository;
 let adminRepository: InMemoryAdminRepository;
+let deliveryPersonAddressRepository: InMemoryDeliveryPersonAddressRepository;
 let hashGenerator: FakeHasher;
 let sut: EditDeliveryPersonUseCase;
 
 describe('Edit Delivery-Person', () => {
   beforeEach(() => {
     adminRepository = new InMemoryAdminRepository();
-    deliveryPersonRepository = new InMemoryDeliveryPersonRepository();
+    deliveryPersonAddressRepository =
+      new InMemoryDeliveryPersonAddressRepository();
+    deliveryPersonRepository = new InMemoryDeliveryPersonRepository(
+      deliveryPersonAddressRepository,
+    );
     hashGenerator = new FakeHasher();
 
     sut = new EditDeliveryPersonUseCase(

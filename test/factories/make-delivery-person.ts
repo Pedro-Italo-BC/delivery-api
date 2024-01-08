@@ -13,6 +13,7 @@ export function makeDeliveryPerson(
       cpf: CPF.create(generateFakeCPF()),
       name: faker.person.firstName(),
       password: faker.internet.password(),
+      addressId: new UniqueEntityID(faker.string.uuid()),
       ...override,
     },
     id,

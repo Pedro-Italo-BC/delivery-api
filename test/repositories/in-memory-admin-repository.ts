@@ -1,3 +1,4 @@
+import { CPF } from '@/domain/delivery/enterprise/entities/value-object/cpf';
 import { AdminRepository } from 'src/domain/delivery/application/repositories/admin-repository';
 import { Admin } from 'src/domain/delivery/enterprise/entities/admin';
 
@@ -34,5 +35,15 @@ export class InMemoryAdminRepository implements AdminRepository {
     }
 
     this.items[findItemIndex] = admin;
+  }
+
+  async findByCPF(cpf: CPF) {
+    const admin = this.items.find((item) => item.cpf.equals(cpf));
+
+    if (!admin) {
+      return null;
+    }
+
+    return admin;
   }
 }

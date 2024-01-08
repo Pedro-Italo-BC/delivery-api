@@ -1,7 +1,7 @@
 import { Optional } from '@/core/types/optional';
-import { Entity } from 'src/core/entities/entity';
 import { UniqueEntityID } from 'src/core/entities/unique-entity-id';
 import { OrderState, OrderStateProps } from './value-object/order-state';
+import { AggregateRoot } from '@/core/entities/aggregate-root';
 
 export interface OrderProps {
   title: string;
@@ -9,12 +9,11 @@ export interface OrderProps {
   deliveryPersonId: UniqueEntityID;
   addressId: UniqueEntityID;
   status: OrderState;
-
   createAt: Date;
   updatedAt?: Date | null;
 }
 
-export class Order extends Entity<OrderProps> {
+export class Order extends AggregateRoot<OrderProps> {
   get title() {
     return this.props.title;
   }
@@ -76,11 +75,15 @@ export class Order extends Entity<OrderProps> {
     this.props.updatedAt = new Date();
   }
 
-  static create(props: Optional<OrderProps, 'createAt'>, id?: UniqueEntityID) {
+  static create(
+    props: Optional<OrderProps, 'createAt' | 'addressId'>,
+    id?: UniqueEntityID,
+  ) {
     const order = new Order(
       {
         ...props,
         createAt: props.createAt ?? new Date(),
+        addressId: props.addressId ?? new UniqueEntityID(),
       },
       id,
     );

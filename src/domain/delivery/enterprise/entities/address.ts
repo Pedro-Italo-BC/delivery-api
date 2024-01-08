@@ -1,5 +1,4 @@
 import { Entity } from 'src/core/entities/entity';
-import { UniqueEntityID } from 'src/core/entities/unique-entity-id';
 
 export interface AddressProps {
   city: string;
@@ -10,42 +9,70 @@ export interface AddressProps {
   complement?: string | null;
   street: string;
 
+  createdAt: Date;
   longitude: number;
   latitude: number;
 }
 
-export class Address extends Entity<AddressProps> {
+export abstract class Address<
+  Props extends AddressProps,
+> extends Entity<Props> {
   get city() {
     return this.props.city;
+  }
+  set city(value: string) {
+    this.props.city = value;
   }
   get district() {
     return this.props.district;
   }
+  set district(value: string) {
+    this.props.district = value;
+  }
   get cep() {
     return this.props.cep;
+  }
+  set cep(value: string) {
+    this.props.cep = value;
   }
   get number() {
     return this.props.number;
   }
+  set number(value: string) {
+    this.props.number = value;
+  }
   get state() {
     return this.props.state;
   }
-  get complement() {
-    return this.props.complement;
+  set state(value: string) {
+    this.props.state = value;
+  }
+  get complement(): string | null {
+    return this.props.complement ?? null;
+  }
+  set complement(value: string | null | undefined) {
+    if (value === undefined) {
+      return;
+    }
+
+    this.props.complement = value;
   }
   get street() {
     return this.props.street;
   }
+  set street(value: string) {
+    this.props.street = value;
+  }
   get longitude() {
     return this.props.longitude;
+  }
+  set longitude(value: number) {
+    this.props.longitude = value;
   }
   get latitude() {
     return this.props.latitude;
   }
-
-  static create(props: AddressProps, id?: UniqueEntityID) {
-    const address = new Address(props, id);
-
-    return address;
+  set latitude(value: number) {
+    this.props.latitude = value;
   }
 }

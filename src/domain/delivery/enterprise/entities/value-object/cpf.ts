@@ -16,4 +16,8 @@ export class CPF {
 
     return numericCpf.length === 11;
   }
+
+  public equals(cpf: CPF) {
+    return cpf.value === this.value;
+  }
 }

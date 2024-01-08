@@ -5,6 +5,8 @@ import { AdminRepository } from '../repositories/admin-repository';
 import { DeliveryPersonRepository } from '../repositories/delivery-person-repository';
 import { HashGenerator } from '../cryptography/hash-generator';
 import { CPF } from '../../enterprise/entities/value-object/cpf';
+import { DeliveryPersonAddress } from '../../enterprise/entities/delivery-person-address';
+import { AddressByInfo } from '../geolocation/address-by-info';
 
 interface RegisterDeliveryPersonUseCaseRequest {
   adminId: string;
@@ -12,6 +14,16 @@ interface RegisterDeliveryPersonUseCaseRequest {
   cpf: string;
   name: string;
   password: string;
+
+  addressInfo: {
+    city: string;
+    district: string;
+    cep: string;
+    number: string;
+    state: string;
+    complement?: string | null;
+    street: string;
+  };
 }
 
 type RegisterDeliveryPersonUseCaseResponse = Either<
@@ -26,12 +38,14 @@ export class RegisterDeliveryPersonUseCase {
     private adminRepository: AdminRepository,
     private deliveryPersonRepository: DeliveryPersonRepository,
     private hashGenerator: HashGenerator,
+    private addressByInfo: AddressByInfo,
   ) {}
 
   async execute({
     adminId,
     cpf,
     name,
+    addressInfo,
     password,
   }: RegisterDeliveryPersonUseCaseRequest): Promise<RegisterDeliveryPersonUseCaseResponse> {
     const admin = await this.adminRepository.findById(adminId);
@@ -48,7 +62,20 @@ export class RegisterDeliveryPersonUseCase {
       password: hashedPassword,
     });
 
-    await this.deliveryPersonRepository.create(deliveryPerson);
+    const addresInfoWithCordinates =
+      await this.addressByInfo.getByInfo(addressInfo);
+
+    const deliveryPersonAddress = DeliveryPersonAddress.create({
+      ...addresInfoWithCordinates,
+      deliveryPersonId: deliveryPerson.id,
+    });
+
+    deliveryPerson.addressId = deliveryPersonAddress.id;
+
+    await this.deliveryPersonRepository.create({
+      deliveryPerson,
+      deliveryPersonAddress,
+    });
 
     return right({
       deliveryPerson,

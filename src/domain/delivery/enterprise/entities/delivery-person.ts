@@ -1,17 +1,18 @@
-import { Entity } from 'src/core/entities/entity';
 import { UniqueEntityID } from 'src/core/entities/unique-entity-id';
 import { Optional } from 'src/core/types/optional';
 import { CPF } from './value-object/cpf';
+import { AggregateRoot } from '@/core/entities/aggregate-root';
 
 export interface DeliveryPersonProps {
   cpf: CPF;
   name: string;
   password: string;
+  addressId: UniqueEntityID;
   updatedAt?: Date | null;
   createdAt: Date;
 }
 
-export class DeliveryPerson extends Entity<DeliveryPersonProps> {
+export class DeliveryPerson extends AggregateRoot<DeliveryPersonProps> {
   get name() {
     return this.props.name;
   }
@@ -40,6 +41,14 @@ export class DeliveryPerson extends Entity<DeliveryPersonProps> {
     return this.props.createdAt;
   }
 
+  get addressId() {
+    return this.props.addressId;
+  }
+
+  set addressId(value: UniqueEntityID) {
+    this.props.addressId = value;
+  }
+
   get updatedAt() {
     return this.props.updatedAt;
   }
@@ -49,13 +58,14 @@ export class DeliveryPerson extends Entity<DeliveryPersonProps> {
   }
 
   static create(
-    props: Optional<DeliveryPersonProps, 'createdAt'>,
+    props: Optional<DeliveryPersonProps, 'createdAt' | 'addressId'>,
     id?: UniqueEntityID,
   ) {
     const deliveryPerson = new DeliveryPerson(
       {
         ...props,
         createdAt: props.createdAt ?? new Date(),
+        addressId: props.addressId ?? new UniqueEntityID(),
       },
       id,
     );

@@ -1,15 +1,14 @@
+import {
+  OrderAddress,
+  OrderAddressProps,
+} from '@/domain/delivery/enterprise/entities/order-address';
 import { faker } from '@faker-js/faker';
 import { UniqueEntityID } from 'src/core/entities/unique-entity-id';
-import {
-  Address,
-  AddressProps,
-} from 'src/domain/delivery/enterprise/entities/address';
-
-export function makeAddress(
-  override: Partial<AddressProps> = {},
+export function makeOrderAddress(
+  override: Partial<OrderAddressProps> = {},
   id?: UniqueEntityID,
 ) {
-  const address = Address.create(
+  const orderAddress = OrderAddress.create(
     {
       cep: faker.location.zipCode(),
       city: faker.location.zipCode(),
@@ -20,10 +19,11 @@ export function makeAddress(
       state: faker.location.state(),
       complement: faker.location.state(),
       street: faker.location.street(),
+      orderId: new UniqueEntityID(faker.string.uuid()),
       ...override,
     },
     id,
   );
 
-  return address;
+  return orderAddress;
 }
