@@ -2,6 +2,9 @@ import { OrderRepository } from '@/domain/delivery/application/repositories/orde
 import { Order } from '@/domain/delivery/enterprise/entities/order';
 import { InMemoryOrderAddressRepository } from './in-memory-order-address-repository';
 import { OrderAddress } from '@/domain/delivery/enterprise/entities/order-address';
+import { DeliveryPersonAddress } from '@/domain/delivery/enterprise/entities/delivery-person-address';
+import { getAddressDistance } from 'test/utils/get-address-distance';
+import { PaginationParams } from '@/core/repositories/pagination-params';
 
 export class InMemoryOrderRepository implements OrderRepository {
   public items: Order[] = [];
@@ -49,5 +52,40 @@ export class InMemoryOrderRepository implements OrderRepository {
     this.inMemoryOrderAddressRepository.deleteManyByOrderId(
       order.id.toString(),
     );
+  }
+  async findManyNearToDeliveryPersonAddress(
+    deliveryPersonAddress: DeliveryPersonAddress,
+    { page }: PaginationParams,
+  ): Promise<Order[]> {
+    const nearOrdersAddress = this.inMemoryOrderAddressRepository.items.filter(
+      (item) => {
+        const deliveryPersonCoordinates = {
+          latitude: deliveryPersonAddress.latitude,
+          longitude: deliveryPersonAddress.longitude,
+        };
+
+        const itemCoordinates = {
+          latitude: item.latitude,
+          longitude: item.longitude,
+        };
+
+        const distanceInKm = getAddressDistance(
+          deliveryPersonCoordinates,
+          itemCoordinates,
+        );
+
+        return distanceInKm <= 5000; // 5km
+      },
+    );
+
+    const orders = this.items
+      .filter((item) => {
+        return nearOrdersAddress.some((itemAddress) =>
+          itemAddress.id.equals(item.addressId),
+        );
+      })
+      .slice((page - 1) * 20, page * 20);
+
+    return orders;
   }
 }

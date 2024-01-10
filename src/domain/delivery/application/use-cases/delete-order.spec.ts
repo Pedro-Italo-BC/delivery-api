@@ -1,7 +1,6 @@
 import { InMemoryAdminRepository } from 'test/repositories/in-memory-admin-repository';
 import { makeAdmin } from 'test/factories/make-admin';
 import { NotAllowedError } from 'src/core/errors/errors/not-allowed-error';
-import { ResourceNotFoundError } from 'src/core/errors/errors/resource-not-found-error';
 import { InMemoryOrderAddressRepository } from 'test/repositories/in-memory-order-address-repository';
 import { InMemoryOrderRepository } from 'test/repositories/in-memory-order-repository';
 import { DeleteOrderUseCase } from './delete-order';

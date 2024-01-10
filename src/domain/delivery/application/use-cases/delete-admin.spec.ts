@@ -30,8 +30,6 @@ describe('Delete Admin', () => {
       password: '12345',
     });
 
-    console.log(result);
-
     expect(result.isRight()).toBe(true);
     expect(adminRepository.items.length).toEqual(0);
   });

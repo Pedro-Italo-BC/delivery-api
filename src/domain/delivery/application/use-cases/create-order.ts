@@ -11,7 +11,6 @@ import { OrderAddress } from '../../enterprise/entities/order-address';
 interface CreateOrderUseCaseRequest {
   title: string;
   content: string;
-  deliveryPersonId: string;
   addressId: string;
   adminId: string;
 
@@ -44,7 +43,6 @@ export class CreateOrderUseCase {
     addressId,
     adminId,
     content,
-    deliveryPersonId,
     title,
     addressInfo,
   }: CreateOrderUseCaseRequest): Promise<CreateOrderUseCaseResponse> {
@@ -56,7 +54,6 @@ export class CreateOrderUseCase {
 
     const order = Order.create({
       addressId: new UniqueEntityID(addressId),
-      deliveryPersonId: new UniqueEntityID(deliveryPersonId),
       content,
       status: OrderState.create('WAITING'),
       title,

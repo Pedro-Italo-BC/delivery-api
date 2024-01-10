@@ -6,9 +6,10 @@ import { AggregateRoot } from '@/core/entities/aggregate-root';
 export interface OrderProps {
   title: string;
   content: string;
-  deliveryPersonId: UniqueEntityID;
+  deliveryPersonId?: UniqueEntityID | null;
   addressId: UniqueEntityID;
   status: OrderState;
+  imgUrl?: string | null;
   createAt: Date;
   updatedAt?: Date | null;
 }
@@ -49,7 +50,7 @@ export class Order extends AggregateRoot<OrderProps> {
     return this.props.deliveryPersonId;
   }
 
-  set deliveryPersonId(value: UniqueEntityID) {
+  set deliveryPersonId(value: UniqueEntityID | undefined | null) {
     this.props.deliveryPersonId = value;
     this.touch();
   }
@@ -60,6 +61,15 @@ export class Order extends AggregateRoot<OrderProps> {
 
   set addressId(value: UniqueEntityID) {
     this.props.addressId = value;
+    this.touch();
+  }
+
+  get imgUrl() {
+    return this.props.imgUrl;
+  }
+
+  set imgUrl(value: string | null | undefined) {
+    this.props.imgUrl = value;
     this.touch();
   }
 
