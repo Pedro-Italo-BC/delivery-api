@@ -2,12 +2,19 @@ import { Optional } from '@/core/types/optional';
 import { UniqueEntityID } from 'src/core/entities/unique-entity-id';
 import { OrderState, OrderStateProps } from './value-object/order-state';
 import { AggregateRoot } from '@/core/entities/aggregate-root';
+import { PickedUpOrderEvent } from '../events/picked-up-order-event';
+import { CreateOrderEvent } from '../events/create-order-event';
+import { DeliveredOrderEvent } from '../events/delivered-order-event';
+import { ReturnOrderEvent } from '../events/return-order-event';
+import { ChangeDeliveryPersonEvent } from '../events/change-delivery-person-event';
+import { ChangeOrderAddressEvent } from '../events/change-order-address-event';
 
 export interface OrderProps {
   title: string;
   content: string;
   deliveryPersonId?: UniqueEntityID | null;
   addressId: UniqueEntityID;
+  receiverPersonId: UniqueEntityID;
   status: OrderState;
   imgUrl?: string | null;
   createAt: Date;
@@ -38,8 +45,11 @@ export class Order extends AggregateRoot<OrderProps> {
   }
 
   set status(value: OrderStateProps) {
-    this.props.status = OrderState.create(value);
-    this.touch();
+    if (value !== this.props.status.value) {
+      this.props.status = OrderState.create(value);
+      this.touch();
+      this.statusChangeEvent(value);
+    }
   }
 
   get excerpt() {
@@ -53,6 +63,10 @@ export class Order extends AggregateRoot<OrderProps> {
   set deliveryPersonId(value: UniqueEntityID | undefined | null) {
     this.props.deliveryPersonId = value;
     this.touch();
+
+    if (value) {
+      this.addDomainEvent(new ChangeDeliveryPersonEvent(this, value));
+    }
   }
 
   get addressId() {
@@ -62,6 +76,10 @@ export class Order extends AggregateRoot<OrderProps> {
   set addressId(value: UniqueEntityID) {
     this.props.addressId = value;
     this.touch();
+
+    this.addDomainEvent(
+      new ChangeOrderAddressEvent(this, this.props.addressId),
+    );
   }
 
   get imgUrl() {
@@ -71,6 +89,14 @@ export class Order extends AggregateRoot<OrderProps> {
   set imgUrl(value: string | null | undefined) {
     this.props.imgUrl = value;
     this.touch();
+  }
+
+  get receiverPersonId() {
+    return this.props.receiverPersonId;
+  }
+
+  set receiverPersonId(value: UniqueEntityID) {
+    this.props.receiverPersonId = value;
   }
 
   get createAt() {
@@ -85,6 +111,20 @@ export class Order extends AggregateRoot<OrderProps> {
     this.props.updatedAt = new Date();
   }
 
+  private statusChangeEvent(status: OrderStateProps) {
+    switch (status) {
+      case 'PICKED_UP':
+        this.addDomainEvent(new PickedUpOrderEvent(this));
+        break;
+      case 'DELIVERED':
+        this.addDomainEvent(new DeliveredOrderEvent(this));
+        break;
+      case 'RETURNED':
+        this.addDomainEvent(new ReturnOrderEvent(this));
+        break;
+    }
+  }
+
   static create(
     props: Optional<OrderProps, 'createAt' | 'addressId'>,
     id?: UniqueEntityID,
@@ -97,6 +137,12 @@ export class Order extends AggregateRoot<OrderProps> {
       },
       id,
     );
+
+    const isNewOrder = !id;
+
+    if (isNewOrder) {
+      order.addDomainEvent(new CreateOrderEvent(order));
+    }
 
     return order;
   }

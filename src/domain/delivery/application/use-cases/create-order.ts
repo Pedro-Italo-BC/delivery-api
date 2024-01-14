@@ -56,6 +56,7 @@ export class CreateOrderUseCase {
       addressId: new UniqueEntityID(addressId),
       content,
       status: OrderState.create('WAITING'),
+      receiverPersonId: new UniqueEntityID(adminId),
       title,
     });
 

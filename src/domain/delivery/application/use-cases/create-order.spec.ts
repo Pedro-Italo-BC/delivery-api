@@ -3,7 +3,6 @@ import { InMemoryOrderRepository } from 'test/repositories/in-memory-order-repos
 import { CreateOrderUseCase } from './create-order';
 import { makeAdmin } from 'test/factories/make-admin';
 import { makeOrderAddress } from 'test/factories/make-order-address';
-import { makeDeliveryPerson } from 'test/factories/make-delivery-person';
 import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
 import { InMemoryOrderAddressRepository } from 'test/repositories/in-memory-order-address-repository';
 import { FakeGeolocationSearch } from 'test/geolocation/fake-geolocation-search';
@@ -33,12 +32,10 @@ describe('Create Order', () => {
     const admin = makeAdmin();
     await adminRepository.items.push(admin);
     const orderAddress = makeOrderAddress();
-    const deliveryPerson = makeDeliveryPerson();
 
     const result = await sut.execute({
       addressId: orderAddress.id.toString(),
       adminId: admin.id.toString(),
-      deliveryPersonId: deliveryPerson.id.toString(),
       content: 'order-content',
       title: 'order-tilte',
       addressInfo: {
@@ -61,12 +58,10 @@ describe('Create Order', () => {
 
   it('should not be able to create an order with wrong admin id', async () => {
     const orderAddress = makeOrderAddress();
-    const deliveryPerson = makeDeliveryPerson();
 
     const result = await sut.execute({
       addressId: orderAddress.id.toString(),
       adminId: 'wrong-admin-id',
-      deliveryPersonId: deliveryPerson.id.toString(),
       content: 'order-content',
       title: 'order-tilte',
       addressInfo: {

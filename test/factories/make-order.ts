@@ -14,6 +14,7 @@ export function makeOrder(
       title: faker.lorem.word(),
       deliveryPersonId: new UniqueEntityID(faker.string.uuid()),
       status: OrderState.create('WAITING'),
+      receiverPersonId: new UniqueEntityID(faker.string.uuid()),
       ...override,
     },
     id,

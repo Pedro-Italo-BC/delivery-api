@@ -2,6 +2,7 @@ import { PaginationParams } from '@/core/repositories/pagination-params';
 import { DeliveryPersonAddress } from '../../enterprise/entities/delivery-person-address';
 import { Order } from '../../enterprise/entities/order';
 import { OrderAddress } from '../../enterprise/entities/order-address';
+import { DeliveryPerson } from '../../enterprise/entities/delivery-person';
 
 export abstract class OrderRepository {
   abstract create(order: {
@@ -13,6 +14,10 @@ export abstract class OrderRepository {
   abstract findById(id: string): Promise<Order | null>;
   abstract findManyNearToDeliveryPersonAddress(
     deliveryPersonAddress: DeliveryPersonAddress,
+    params: PaginationParams,
+  ): Promise<Order[]>;
+  abstract findManyDeliveredOrdersByDeliveryPerson(
+    deliveryPerson: DeliveryPerson,
     params: PaginationParams,
   ): Promise<Order[]>;
 }

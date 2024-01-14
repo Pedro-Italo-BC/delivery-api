@@ -5,6 +5,8 @@ import { OrderAddress } from '@/domain/delivery/enterprise/entities/order-addres
 import { DeliveryPersonAddress } from '@/domain/delivery/enterprise/entities/delivery-person-address';
 import { getAddressDistance } from 'test/utils/get-address-distance';
 import { PaginationParams } from '@/core/repositories/pagination-params';
+import { DeliveryPerson } from '@/domain/delivery/enterprise/entities/delivery-person';
+import { DomainEvents } from '@/core/events/domain-events';
 
 export class InMemoryOrderRepository implements OrderRepository {
   public items: Order[] = [];
@@ -22,6 +24,8 @@ export class InMemoryOrderRepository implements OrderRepository {
   }) {
     this.items.push(order);
     await this.inMemoryOrderAddressRepository.create(orderAddress);
+
+    DomainEvents.dispatchEventsForAggregate(order.id);
   }
 
   async findById(id: string) {
@@ -42,6 +46,8 @@ export class InMemoryOrderRepository implements OrderRepository {
     }
 
     this.items[itemIndex] = order;
+
+    DomainEvents.dispatchEventsForAggregate(order.id);
   }
 
   async delete(order: Order): Promise<void> {
@@ -82,6 +88,22 @@ export class InMemoryOrderRepository implements OrderRepository {
       .filter((item) => {
         return nearOrdersAddress.some((itemAddress) =>
           itemAddress.id.equals(item.addressId),
+        );
+      })
+      .slice((page - 1) * 20, page * 20);
+
+    return orders;
+  }
+
+  async findManyDeliveredOrdersByDeliveryPerson(
+    deliveryPerson: DeliveryPerson,
+    { page }: PaginationParams,
+  ) {
+    const orders = this.items
+      .filter((item) => {
+        return (
+          item.deliveryPersonId?.equals(deliveryPerson.id) &&
+          item.status === 'DELIVERED'
         );
       })
       .slice((page - 1) * 20, page * 20);

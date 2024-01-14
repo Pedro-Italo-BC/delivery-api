@@ -5,15 +5,18 @@ import { makeAdmin } from 'test/factories/make-admin';
 import { makeOrder } from 'test/factories/make-order';
 import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
 import { ResourceNotFoundError } from '@/core/errors/errors/resource-not-found-error';
+import { InMemoryOrderAddressRepository } from 'test/repositories/in-memory-order-address-repository';
 
 let adminRepository: InMemoryAdminRepository;
+let orderAddressRepository: InMemoryOrderAddressRepository;
 let orderRepository: InMemoryOrderRepository;
 let sut: EditOrderUseCase;
 
 describe('Edit Order', () => {
   beforeEach(() => {
     adminRepository = new InMemoryAdminRepository();
-    orderRepository = new InMemoryOrderRepository();
+    orderAddressRepository = new InMemoryOrderAddressRepository();
+    orderRepository = new InMemoryOrderRepository(orderAddressRepository);
     sut = new EditOrderUseCase(adminRepository, orderRepository);
   });
 
