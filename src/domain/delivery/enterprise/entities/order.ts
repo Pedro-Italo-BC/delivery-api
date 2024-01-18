@@ -13,7 +13,8 @@ export interface OrderProps {
   title: string;
   content: string;
   deliveryPersonId?: UniqueEntityID | null;
-  addressId: UniqueEntityID;
+  currentAddressId: UniqueEntityID;
+  deliveryAddressId: UniqueEntityID;
   receiverPersonId: UniqueEntityID;
   status: OrderState;
   imgUrl?: string | null;
@@ -69,16 +70,29 @@ export class Order extends AggregateRoot<OrderProps> {
     }
   }
 
-  get addressId() {
-    return this.props.addressId;
+  get deliveryAddressId() {
+    return this.props.deliveryAddressId;
   }
 
-  set addressId(value: UniqueEntityID) {
-    this.props.addressId = value;
+  set deliveryAddressId(value: UniqueEntityID) {
+    this.props.deliveryAddressId = value;
     this.touch();
 
     this.addDomainEvent(
-      new ChangeOrderAddressEvent(this, this.props.addressId),
+      new ChangeOrderAddressEvent(this, this.props.deliveryAddressId),
+    );
+  }
+
+  get currentAddressId() {
+    return this.props.currentAddressId;
+  }
+
+  set currentAddressId(value: UniqueEntityID) {
+    this.props.currentAddressId = value;
+    this.touch();
+
+    this.addDomainEvent(
+      new ChangeOrderAddressEvent(this, this.props.currentAddressId),
     );
   }
 
@@ -126,14 +140,18 @@ export class Order extends AggregateRoot<OrderProps> {
   }
 
   static create(
-    props: Optional<OrderProps, 'createAt' | 'addressId'>,
+    props: Optional<
+      OrderProps,
+      'createAt' | 'currentAddressId' | 'deliveryAddressId'
+    >,
     id?: UniqueEntityID,
   ) {
     const order = new Order(
       {
         ...props,
         createAt: props.createAt ?? new Date(),
-        addressId: props.addressId ?? new UniqueEntityID(),
+        currentAddressId: props.currentAddressId ?? new UniqueEntityID(),
+        deliveryAddressId: props.deliveryAddressId ?? new UniqueEntityID(),
       },
       id,
     );

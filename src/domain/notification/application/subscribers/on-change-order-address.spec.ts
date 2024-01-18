@@ -55,10 +55,16 @@ describe('On Change Order Address', () => {
   });
 
   it('should be able to send a notification when an order be created', async () => {
-    const orderAddress = makeOrderAddress();
-    orderAddressRepository.items.push(orderAddress);
-    const order = makeOrder({ addressId: orderAddress.id });
-    orderRepository.create({ order, orderAddress });
+    const currentAddress = makeOrderAddress();
+    orderAddressRepository.items.push(currentAddress);
+    const deliveryAddress = makeOrderAddress();
+    orderAddressRepository.items.push(deliveryAddress);
+
+    const order = makeOrder({
+      currentAddressId: currentAddress.id,
+      deliveryAddressId: deliveryAddress.id,
+    });
+    orderRepository.create({ order, currentAddress, deliveryAddress });
 
     const deliveryPersonAddress = makeDeliveryPersonAddress();
     deliveryPersonAddressRepository.items.push(deliveryPersonAddress);
@@ -69,7 +75,7 @@ describe('On Change Order Address', () => {
 
     const newOrderAddress = makeOrderAddress({ orderId: order.id });
 
-    order.addressId = newOrderAddress.id;
+    order.currentAddressId = newOrderAddress.id;
 
     orderRepository.save(order);
 

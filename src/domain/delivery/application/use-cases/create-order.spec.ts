@@ -2,7 +2,6 @@ import { InMemoryAdminRepository } from 'test/repositories/in-memory-admin-repos
 import { InMemoryOrderRepository } from 'test/repositories/in-memory-order-repository';
 import { CreateOrderUseCase } from './create-order';
 import { makeAdmin } from 'test/factories/make-admin';
-import { makeOrderAddress } from 'test/factories/make-order-address';
 import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
 import { InMemoryOrderAddressRepository } from 'test/repositories/in-memory-order-address-repository';
 import { FakeGeolocationSearch } from 'test/geolocation/fake-geolocation-search';
@@ -31,14 +30,21 @@ describe('Create Order', () => {
   it('should be able to create an order', async () => {
     const admin = makeAdmin();
     await adminRepository.items.push(admin);
-    const orderAddress = makeOrderAddress();
 
     const result = await sut.execute({
-      addressId: orderAddress.id.toString(),
       adminId: admin.id.toString(),
       content: 'order-content',
       title: 'order-tilte',
-      addressInfo: {
+      currentAddress: {
+        cep: '12345-678',
+        city: 'FakeCity',
+        district: 'FakeDistrict',
+        number: '123',
+        state: 'FakeState',
+        complement: 'FakeComplement',
+        street: 'FakeStreet',
+      },
+      deliveryAddress: {
         cep: '12345-678',
         city: 'FakeCity',
         district: 'FakeDistrict',
@@ -53,18 +59,24 @@ describe('Create Order', () => {
     expect(result.value).toEqual({
       order: orderRepository.items[0],
     });
-    expect(inMemoryOrderAddressRepository.items.length).toEqual(1);
+    expect(inMemoryOrderAddressRepository.items.length).toEqual(2);
   });
 
   it('should not be able to create an order with wrong admin id', async () => {
-    const orderAddress = makeOrderAddress();
-
     const result = await sut.execute({
-      addressId: orderAddress.id.toString(),
       adminId: 'wrong-admin-id',
       content: 'order-content',
       title: 'order-tilte',
-      addressInfo: {
+      currentAddress: {
+        cep: '12345-678',
+        city: 'FakeCity',
+        district: 'FakeDistrict',
+        number: '123',
+        state: 'FakeState',
+        complement: 'FakeComplement',
+        street: 'FakeStreet',
+      },
+      deliveryAddress: {
         cep: '12345-678',
         city: 'FakeCity',
         district: 'FakeDistrict',

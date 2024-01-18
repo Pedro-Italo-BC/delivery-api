@@ -51,10 +51,18 @@ describe('On Create Order', () => {
   });
 
   it('should be able to send a notification when an order be created', async () => {
-    const orderAddress = makeOrderAddress();
-    orderAddressRepository.items.push(orderAddress);
-    const order = makeOrder({ addressId: orderAddress.id });
-    orderRepository.create({ order, orderAddress });
+    const currentAddress = makeOrderAddress();
+    const deliveryAddress = makeOrderAddress();
+    const order = makeOrder({
+      currentAddressId: currentAddress.id,
+      deliveryPersonId: deliveryAddress.id,
+    });
+
+    orderRepository.create({
+      order,
+      currentAddress,
+      deliveryAddress,
+    });
 
     const deliveryPersonAddress = makeDeliveryPersonAddress();
     deliveryPersonAddressRepository.items.push(deliveryPersonAddress);

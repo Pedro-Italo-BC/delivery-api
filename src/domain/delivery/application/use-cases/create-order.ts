@@ -11,10 +11,19 @@ import { OrderAddress } from '../../enterprise/entities/order-address';
 interface CreateOrderUseCaseRequest {
   title: string;
   content: string;
-  addressId: string;
   adminId: string;
 
-  addressInfo: {
+  currentAddress: {
+    city: string;
+    district: string;
+    cep: string;
+    number: string;
+    state: string;
+    complement?: string | null;
+    street: string;
+  };
+
+  deliveryAddress: {
     city: string;
     district: string;
     cep: string;
@@ -40,11 +49,10 @@ export class CreateOrderUseCase {
   ) {}
 
   async execute({
-    addressId,
     adminId,
     content,
+    currentAddress,
     title,
-    addressInfo,
   }: CreateOrderUseCaseRequest): Promise<CreateOrderUseCaseResponse> {
     const admin = await this.adminRepository.findById(adminId);
 
@@ -53,21 +61,36 @@ export class CreateOrderUseCase {
     }
 
     const order = Order.create({
-      addressId: new UniqueEntityID(addressId),
       content,
       status: OrderState.create('WAITING'),
       receiverPersonId: new UniqueEntityID(adminId),
       title,
     });
 
-    const address = await this.addressByInfo.getByInfo(addressInfo);
+    const currentOrderAddress =
+      await this.addressByInfo.getByInfo(currentAddress);
 
-    const orderAddress = OrderAddress.create({
-      ...address,
+    const deliveryOrderAddress =
+      await this.addressByInfo.getByInfo(currentAddress);
+
+    const currentOrderAddressResponse = OrderAddress.create({
+      ...currentOrderAddress,
       orderId: order.id,
     });
 
-    await this.orderRepository.create({ order, orderAddress });
+    const deliveryOrderAddressResponse = OrderAddress.create({
+      ...deliveryOrderAddress,
+      orderId: order.id,
+    });
+
+    order.deliveryAddressId = deliveryOrderAddressResponse.id;
+    order.currentAddressId = currentOrderAddressResponse.id;
+
+    await this.orderRepository.create({
+      order,
+      currentAddress: currentOrderAddressResponse,
+      deliveryAddress: deliveryOrderAddressResponse,
+    });
 
     return right({
       order,

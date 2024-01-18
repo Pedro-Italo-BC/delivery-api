@@ -9,7 +9,8 @@ export function makeOrder(
 ) {
   const order = Order.create(
     {
-      addressId: new UniqueEntityID(faker.string.uuid()),
+      currentAddressId: new UniqueEntityID(faker.string.uuid()),
+      deliveryAddressId: new UniqueEntityID(faker.string.uuid()),
       content: faker.lorem.text(),
       title: faker.lorem.word(),
       deliveryPersonId: new UniqueEntityID(faker.string.uuid()),

@@ -62,13 +62,22 @@ describe('On Change Delivery-Person', () => {
     });
     deliveryPersonRepository.items.push(deliveryPerson);
 
-    const orderAddress = makeOrderAddress();
-    orderAddressRepository.items.push(orderAddress);
+    const currentOrderAddress = makeOrderAddress();
+    orderAddressRepository.items.push(currentOrderAddress);
+
+    const deliveryOrderAddress = makeOrderAddress();
+    orderAddressRepository.items.push(deliveryOrderAddress);
+
     const order = makeOrder({
-      addressId: orderAddress.id,
+      currentAddressId: currentOrderAddress.id,
+      deliveryAddressId: deliveryOrderAddress.id,
       deliveryPersonId: deliveryPerson.id,
     });
-    orderRepository.create({ order, orderAddress });
+    orderRepository.create({
+      order,
+      currentAddress: currentOrderAddress,
+      deliveryAddress: deliveryOrderAddress,
+    });
 
     const newDelieryPerson = makeDeliveryPerson();
 

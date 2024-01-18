@@ -51,7 +51,7 @@ describe('Fetch Near Orders From Delivery-Person', () => {
         longitude: -49.15552381,
       });
 
-      const order = makeOrder({ addressId: nearOrderAddress.id });
+      const order = makeOrder({ currentAddressId: nearOrderAddress.id });
 
       orderRepository.items.push(order);
 
@@ -64,7 +64,7 @@ describe('Fetch Near Orders From Delivery-Person', () => {
         longitude: -49.70205721,
       });
 
-      const order = makeOrder({ addressId: farOrderAddress.id });
+      const order = makeOrder({ currentAddressId: farOrderAddress.id });
 
       orderRepository.items.push(order);
 

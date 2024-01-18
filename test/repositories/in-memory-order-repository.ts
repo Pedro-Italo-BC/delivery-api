@@ -17,13 +17,16 @@ export class InMemoryOrderRepository implements OrderRepository {
 
   async create({
     order,
-    orderAddress,
+    currentAddress,
+    deliveryAddress,
   }: {
     order: Order;
-    orderAddress: OrderAddress;
-  }) {
+    currentAddress: OrderAddress;
+    deliveryAddress: OrderAddress;
+  }): Promise<void> {
     this.items.push(order);
-    await this.inMemoryOrderAddressRepository.create(orderAddress);
+    await this.inMemoryOrderAddressRepository.create(currentAddress);
+    await this.inMemoryOrderAddressRepository.create(deliveryAddress);
 
     DomainEvents.dispatchEventsForAggregate(order.id);
   }
@@ -87,7 +90,7 @@ export class InMemoryOrderRepository implements OrderRepository {
     const orders = this.items
       .filter((item) => {
         return nearOrdersAddress.some((itemAddress) =>
-          itemAddress.id.equals(item.addressId),
+          itemAddress.id.equals(item.currentAddressId),
         );
       })
       .slice((page - 1) * 20, page * 20);

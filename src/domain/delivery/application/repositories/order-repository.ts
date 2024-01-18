@@ -7,7 +7,8 @@ import { DeliveryPerson } from '../../enterprise/entities/delivery-person';
 export abstract class OrderRepository {
   abstract create(order: {
     order: Order;
-    orderAddress: OrderAddress;
+    currentAddress: OrderAddress;
+    deliveryAddress: OrderAddress;
   }): Promise<void>;
   abstract save(order: Order): Promise<void>;
   abstract delete(order: Order): Promise<void>;

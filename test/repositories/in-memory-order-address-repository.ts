@@ -31,7 +31,7 @@ export class InMemoryOrderAddressRepository implements OrderAddressRepository {
     this.items = newItemsList;
   }
 
-  async findManyOrdersByOrder(order: Order, { page }: PaginationParams) {
+  async findManyOrdersAddressByOrder(order: Order, { page }: PaginationParams) {
     const orderAddressList = this.items
       .filter((item) => item.orderId.equals(order.id))
       .slice((page - 1) * 20, page * 20);
