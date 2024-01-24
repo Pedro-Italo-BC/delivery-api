@@ -1,6 +1,8 @@
 import { NotificationRepository } from '@/domain/notification/application/reposiotory/notification-repository';
 import { Notification } from '@/domain/notification/enterprise/entities/notification';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class InMemoryNotificationRepository implements NotificationRepository {
   public items: Notification[] = [];
 

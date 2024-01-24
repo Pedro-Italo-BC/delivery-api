@@ -3,7 +3,7 @@ import { DeliveryPerson } from '@/domain/delivery/enterprise/entities/delivery-p
 import { CPF } from '@/domain/delivery/enterprise/entities/value-object/cpf';
 import { Prisma, User as PrismaDeliveryPerson } from '@prisma/client';
 
-export class PrismaDeliveryPersonMapper {
+export class PrismaDeliveryPersonRepositoryMapper {
   static toPrisma(
     deliveryPerson: DeliveryPerson,
   ): Prisma.UserUncheckedCreateInput {
@@ -13,17 +13,21 @@ export class PrismaDeliveryPersonMapper {
       password: deliveryPerson.password,
       addressId: deliveryPerson.addressId.toString(),
       role: 'DELIVERY_PERSON',
+      id: deliveryPerson.id.toString(),
     };
   }
 
   static toDomain(raw: PrismaDeliveryPerson): DeliveryPerson {
-    return DeliveryPerson.create({
-      cpf: CPF.create(raw.cpf),
-      name: raw.name,
-      password: raw.password,
-      addressId: new UniqueEntityID(raw.addressId as string),
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
-    });
+    return DeliveryPerson.create(
+      {
+        cpf: CPF.create(raw.cpf),
+        name: raw.name,
+        password: raw.password,
+        addressId: new UniqueEntityID(raw.addressId as string),
+        createdAt: raw.createdAt,
+        updatedAt: raw.updatedAt,
+      },
+      new UniqueEntityID(raw.id),
+    );
   }
 }

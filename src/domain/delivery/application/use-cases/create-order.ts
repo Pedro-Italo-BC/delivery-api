@@ -5,8 +5,9 @@ import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
 import { Order } from '../../enterprise/entities/order';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
 import { OrderState } from '../../enterprise/entities/value-object/order-state';
-import { AddressByInfo } from '../geolocation/address-by-info';
 import { OrderAddress } from '../../enterprise/entities/order-address';
+import { Injectable } from '@nestjs/common';
+import { OrderAddressRepository } from '../repositories/order-address-repository';
 
 interface CreateOrderUseCaseRequest {
   title: string;
@@ -14,23 +15,13 @@ interface CreateOrderUseCaseRequest {
   adminId: string;
 
   currentAddress: {
-    city: string;
-    district: string;
-    cep: string;
-    number: string;
-    state: string;
-    complement?: string | null;
-    street: string;
+    latitude: number;
+    longitude: number;
   };
 
   deliveryAddress: {
-    city: string;
-    district: string;
-    cep: string;
-    number: string;
-    state: string;
-    complement?: string | null;
-    street: string;
+    latitude: number;
+    longitude: number;
   };
 }
 
@@ -41,17 +32,19 @@ type CreateOrderUseCaseResponse = Either<
   }
 >;
 
+@Injectable()
 export class CreateOrderUseCase {
   constructor(
     private adminRepository: AdminRepository,
     private orderRepository: OrderRepository,
-    private addressByInfo: AddressByInfo,
+    private orderAddressReposiotory: OrderAddressRepository,
   ) {}
 
   async execute({
     adminId,
     content,
     currentAddress,
+    deliveryAddress,
     title,
   }: CreateOrderUseCaseRequest): Promise<CreateOrderUseCaseResponse> {
     const admin = await this.adminRepository.findById(adminId);
@@ -60,31 +53,32 @@ export class CreateOrderUseCase {
       return left(new NotAllowedError());
     }
 
+    const currentOrderAddressResponse = OrderAddress.create({
+      latitude: currentAddress.latitude,
+      longitude: currentAddress.longitude,
+    });
+
+    const deliveryOrderAddressResponse = OrderAddress.create({
+      latitude: deliveryAddress.latitude,
+      longitude: deliveryAddress.longitude,
+    });
+
+    await Promise.all([
+      this.orderAddressReposiotory.create(currentOrderAddressResponse),
+      this.orderAddressReposiotory.create(deliveryOrderAddressResponse),
+    ]);
+
     const order = Order.create({
       content,
       status: OrderState.create('WAITING'),
       receiverPersonId: new UniqueEntityID(adminId),
       title,
+      deliveryAddressId: deliveryOrderAddressResponse.id,
+      currentAddressId: currentOrderAddressResponse.id,
     });
 
-    const currentOrderAddress =
-      await this.addressByInfo.getByInfo(currentAddress);
-
-    const deliveryOrderAddress =
-      await this.addressByInfo.getByInfo(currentAddress);
-
-    const currentOrderAddressResponse = OrderAddress.create({
-      ...currentOrderAddress,
-      orderId: order.id,
-    });
-
-    const deliveryOrderAddressResponse = OrderAddress.create({
-      ...deliveryOrderAddress,
-      orderId: order.id,
-    });
-
-    order.deliveryAddressId = deliveryOrderAddressResponse.id;
-    order.currentAddressId = currentOrderAddressResponse.id;
+    currentOrderAddressResponse.orderId = order.id;
+    deliveryOrderAddressResponse.orderId = order.id;
 
     await this.orderRepository.create({
       order,

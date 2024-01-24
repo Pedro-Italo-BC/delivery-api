@@ -44,7 +44,9 @@ export class FetchOrderAddressHistoricUseCase {
     }
 
     const orderAddressList =
-      await this.orderAddressRepository.findManyOrdersByOrder(order, { page });
+      await this.orderAddressRepository.findManyOrdersAddressByOrder(order, {
+        page,
+      });
 
     return right({
       orderAddressList,

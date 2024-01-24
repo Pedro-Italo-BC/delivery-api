@@ -1,7 +1,7 @@
 import { DeliveryPersonAddressRepository } from '@/domain/delivery/application/repositories/delivery-person-address-repository';
 import { DeliveryPersonAddress } from '@/domain/delivery/enterprise/entities/delivery-person-address';
 import { PrismaService } from '../prisma.service';
-import { PrismaDeliveryPersonAddressMapper } from '../mappers/prisma-order-address-mapper';
+import { PrismaDeliveryPersonAddressRepositoryMapper } from '../mappers/prisma-delivery-person-address-repository-mapper';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class PrismaDeliveryPersonAddressRepository
   constructor(private prisma: PrismaService) {}
 
   async create(address: DeliveryPersonAddress): Promise<void> {
-    const data = PrismaDeliveryPersonAddressMapper.toPrisma(address);
+    const data = PrismaDeliveryPersonAddressRepositoryMapper.toPrisma(address);
 
     await this.prisma.address.create({
       data,
@@ -32,7 +32,20 @@ export class PrismaDeliveryPersonAddressRepository
     });
 
     return deliveryPersonAddress
-      ? PrismaDeliveryPersonAddressMapper.toDomain(deliveryPersonAddress)
+      ? PrismaDeliveryPersonAddressRepositoryMapper.toDomain(
+          deliveryPersonAddress,
+        )
       : null;
+  }
+
+  async save(address: DeliveryPersonAddress): Promise<void> {
+    const data = PrismaDeliveryPersonAddressRepositoryMapper.toPrisma(address);
+
+    await this.prisma.address.update({
+      where: {
+        id: address.id.toString(),
+      },
+      data,
+    });
   }
 }

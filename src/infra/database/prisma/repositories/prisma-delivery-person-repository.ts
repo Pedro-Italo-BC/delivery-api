@@ -5,7 +5,7 @@ import { DeliveryPerson } from '@/domain/delivery/enterprise/entities/delivery-p
 import { DeliveryPersonAddress } from '@/domain/delivery/enterprise/entities/delivery-person-address';
 import { CPF } from '@/domain/delivery/enterprise/entities/value-object/cpf';
 import { DeliveryPersonAddressRepository } from '@/domain/delivery/application/repositories/delivery-person-address-repository';
-import { PrismaDeliveryPersonMapper } from '../mappers/prisma-delivery-person-mapper';
+import { PrismaDeliveryPersonRepositoryMapper } from '../mappers/prisma-delivery-person-repository-mapper';
 
 @Injectable()
 export class PrismaDeliveryPersonRepository
@@ -22,13 +22,13 @@ export class PrismaDeliveryPersonRepository
     deliveryPerson: DeliveryPerson;
     deliveryPersonAddress: DeliveryPersonAddress;
   }): Promise<void> {
-    const data = PrismaDeliveryPersonMapper.toPrisma(deliveryPerson);
+    const data = PrismaDeliveryPersonRepositoryMapper.toPrisma(deliveryPerson);
 
     await this.prisma.user.create({
       data,
     });
 
-    await this.deliveryPersonAddressRepository.create(deliveryPersonAddress);
+    await this.deliveryPersonAddressRepository.save(deliveryPersonAddress);
   }
   async delete(deliveryPerson: DeliveryPerson): Promise<void> {
     await this.prisma.user.delete({
@@ -48,7 +48,7 @@ export class PrismaDeliveryPersonRepository
     deliveryPerson: DeliveryPerson;
     deliveryPersonAddress?: DeliveryPersonAddress | undefined;
   }): Promise<void> {
-    const data = PrismaDeliveryPersonMapper.toPrisma(deliveryPerson);
+    const data = PrismaDeliveryPersonRepositoryMapper.toPrisma(deliveryPerson);
 
     await this.prisma.user.update({
       where: {
@@ -73,7 +73,7 @@ export class PrismaDeliveryPersonRepository
     });
 
     return deliveryPerson
-      ? PrismaDeliveryPersonMapper.toDomain(deliveryPerson)
+      ? PrismaDeliveryPersonRepositoryMapper.toDomain(deliveryPerson)
       : null;
   }
   async findByCPF(cpf: CPF): Promise<DeliveryPerson | null> {
@@ -84,7 +84,7 @@ export class PrismaDeliveryPersonRepository
     });
 
     return deliveryPerson
-      ? PrismaDeliveryPersonMapper.toDomain(deliveryPerson)
+      ? PrismaDeliveryPersonRepositoryMapper.toDomain(deliveryPerson)
       : null;
   }
 }

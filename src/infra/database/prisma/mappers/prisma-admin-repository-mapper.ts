@@ -25,6 +25,7 @@ export class PrismaAdminRepositoryMapper {
       name: admin.name,
       password: admin.password,
       role: 'ADMIN',
+      id: admin.id.toString(),
     };
   }
 }

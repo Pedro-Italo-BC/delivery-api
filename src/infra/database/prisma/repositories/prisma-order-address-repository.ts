@@ -1,5 +1,5 @@
 import { OrderAddressRepository } from '@/domain/delivery/application/repositories/order-address-repository';
-import { PrismaOrderAddressMapper } from '../mappers/prisma-delivery-person-address-mapper';
+import { PrismaOrderAddressRepositoryMapper } from '../mappers/prisma-order-address-repository-mapper';
 import { PrismaService } from '../prisma.service';
 import { OrderAddress } from '@/domain/delivery/enterprise/entities/order-address';
 import { PaginationParams } from '@/core/repositories/pagination-params';
@@ -11,7 +11,7 @@ export class PrismaOrderAddressRepository implements OrderAddressRepository {
   constructor(private prisma: PrismaService) {}
 
   async create(address: OrderAddress): Promise<void> {
-    const data = PrismaOrderAddressMapper.toPrisma(address);
+    const data = PrismaOrderAddressRepositoryMapper.toPrisma(address);
 
     await this.prisma.address.create({
       data,
@@ -32,7 +32,7 @@ export class PrismaOrderAddressRepository implements OrderAddressRepository {
     });
 
     return orderAddress
-      ? PrismaOrderAddressMapper.toDomain(orderAddress)
+      ? PrismaOrderAddressRepositoryMapper.toDomain(orderAddress)
       : null;
   }
 
@@ -48,6 +48,17 @@ export class PrismaOrderAddressRepository implements OrderAddressRepository {
       take: page * 20,
     });
 
-    return orderAddress.map(PrismaOrderAddressMapper.toDomain);
+    return orderAddress.map(PrismaOrderAddressRepositoryMapper.toDomain);
+  }
+
+  async save(address: OrderAddress): Promise<void> {
+    const data = PrismaOrderAddressRepositoryMapper.toPrisma(address);
+
+    await this.prisma.address.update({
+      where: {
+        id: address.id.toString(),
+      },
+      data,
+    });
   }
 }

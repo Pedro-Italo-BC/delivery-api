@@ -3,12 +3,9 @@ import { OrderRepository } from '@/domain/delivery/application/repositories/orde
 import { SendNotificationUseCase } from '../use-cases/send-notification';
 import { DomainEvents } from '@/core/events/domain-events';
 import { ChangeOrderAddressEvent } from '@/domain/delivery/enterprise/events/change-order-address-event';
-import { OrderAddressRepository } from '@/domain/delivery/application/repositories/order-address-repository';
-
 export class OnChangeOrderAddress implements EventHandler {
   constructor(
     private orderRepository: OrderRepository,
-    private orderAddressRepository: OrderAddressRepository,
     private sendNotification: SendNotificationUseCase,
   ) {
     this.setupSubscriptions();
@@ -23,20 +20,15 @@ export class OnChangeOrderAddress implements EventHandler {
 
   private async sendChangeOrderAddressNotification({
     order,
-    orderAddressId,
   }: ChangeOrderAddressEvent) {
     const orderResponse = await this.orderRepository.findById(
       order.id.toString(),
     );
 
-    const orderAddress = await this.orderAddressRepository.findById(
-      orderAddressId.toString(),
-    );
-
-    if (orderResponse && orderAddress) {
+    if (orderResponse) {
       await this.sendNotification.execute({
         recipientId: orderResponse.receiverPersonId.toString(),
-        content: `Seu pedido de "${orderResponse.title}" está neste momento em "${orderAddress.city}"!!`,
+        content: `Seu pedido de "${orderResponse.title}" está em outro endereço neste momento"!!`,
         title: `Sua encomenda esta em outro lugar!!`,
       });
     }

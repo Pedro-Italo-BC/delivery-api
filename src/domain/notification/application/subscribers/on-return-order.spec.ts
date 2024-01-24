@@ -53,7 +53,7 @@ describe('On Return Order', () => {
   it('should be able to send a notification when an order be returned', async () => {
     const orderAddress = makeOrderAddress();
     orderAddressRepository.items.push(orderAddress);
-    const order = makeOrder({ addressId: orderAddress.id });
+    const order = makeOrder({ currentAddressId: orderAddress.id });
     orderRepository.items.push(order);
 
     const deliveryPersonAddress = makeDeliveryPersonAddress();

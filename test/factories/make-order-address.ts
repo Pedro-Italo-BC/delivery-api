@@ -2,7 +2,10 @@ import {
   OrderAddress,
   OrderAddressProps,
 } from '@/domain/delivery/enterprise/entities/order-address';
+import { PrismaOrderAddressRepositoryMapper } from '@/infra/database/prisma/mappers/prisma-order-address-repository-mapper';
+import { PrismaService } from '@/infra/database/prisma/prisma.service';
 import { faker } from '@faker-js/faker';
+import { Injectable } from '@nestjs/common';
 import { UniqueEntityID } from 'src/core/entities/unique-entity-id';
 export function makeOrderAddress(
   override: Partial<OrderAddressProps> = {},
@@ -10,15 +13,8 @@ export function makeOrderAddress(
 ) {
   const orderAddress = OrderAddress.create(
     {
-      cep: faker.location.zipCode(),
-      city: faker.location.zipCode(),
-      district: faker.location.city(),
       latitude: faker.location.latitude(),
       longitude: faker.location.longitude(),
-      number: faker.location.buildingNumber(),
-      state: faker.location.state(),
-      complement: faker.location.state(),
-      street: faker.location.street(),
       orderId: new UniqueEntityID(faker.string.uuid()),
       ...override,
     },
@@ -26,4 +22,21 @@ export function makeOrderAddress(
   );
 
   return orderAddress;
+}
+
+@Injectable()
+export class OrderAddressFactory {
+  constructor(private prisma: PrismaService) {}
+
+  async makePrismaOrderAddress(
+    data: Partial<OrderAddressProps> = {},
+  ): Promise<OrderAddress> {
+    const orderAddress = makeOrderAddress(data);
+
+    await this.prisma.address.create({
+      data: PrismaOrderAddressRepositoryMapper.toPrisma(orderAddress),
+    });
+
+    return orderAddress;
+  }
 }

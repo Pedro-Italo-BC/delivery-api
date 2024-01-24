@@ -6,7 +6,9 @@ import { DeliveryPersonRepository } from '../repositories/delivery-person-reposi
 import { HashGenerator } from '../cryptography/hash-generator';
 import { CPF } from '../../enterprise/entities/value-object/cpf';
 import { DeliveryPersonAddress } from '../../enterprise/entities/delivery-person-address';
-import { AddressByInfo } from '../geolocation/address-by-info';
+import { DeliveryPersonAlredyExistsError } from './errors/delivery-person-alredy-exists';
+import { Injectable } from '@nestjs/common';
+import { DeliveryPersonAddressRepository } from '../repositories/delivery-person-address-repository';
 
 interface RegisterDeliveryPersonUseCaseRequest {
   adminId: string;
@@ -16,29 +18,25 @@ interface RegisterDeliveryPersonUseCaseRequest {
   password: string;
 
   addressInfo: {
-    city: string;
-    district: string;
-    cep: string;
-    number: string;
-    state: string;
-    complement?: string | null;
-    street: string;
+    longitude: number;
+    latitude: number;
   };
 }
 
 type RegisterDeliveryPersonUseCaseResponse = Either<
-  NotAllowedError,
+  NotAllowedError | DeliveryPersonAlredyExistsError,
   {
     deliveryPerson: DeliveryPerson;
   }
 >;
 
+@Injectable()
 export class RegisterDeliveryPersonUseCase {
   constructor(
     private adminRepository: AdminRepository,
     private deliveryPersonRepository: DeliveryPersonRepository,
+    private deliveryPersonAddressRepository: DeliveryPersonAddressRepository,
     private hashGenerator: HashGenerator,
-    private addressByInfo: AddressByInfo,
   ) {}
 
   async execute({
@@ -54,6 +52,13 @@ export class RegisterDeliveryPersonUseCase {
       return left(new NotAllowedError());
     }
 
+    const delieryPersonAlredyExists =
+      await this.deliveryPersonRepository.findByCPF(CPF.create(cpf));
+
+    if (delieryPersonAlredyExists) {
+      return left(new DeliveryPersonAlredyExistsError());
+    }
+
     const hashedPassword = await this.hashGenerator.hash(password);
 
     const deliveryPerson = DeliveryPerson.create({
@@ -62,15 +67,15 @@ export class RegisterDeliveryPersonUseCase {
       password: hashedPassword,
     });
 
-    const addresInfoWithCordinates =
-      await this.addressByInfo.getByInfo(addressInfo);
-
     const deliveryPersonAddress = DeliveryPersonAddress.create({
-      ...addresInfoWithCordinates,
-      deliveryPersonId: deliveryPerson.id,
+      latitude: addressInfo.latitude,
+      longitude: addressInfo.longitude,
     });
 
+    await this.deliveryPersonAddressRepository.create(deliveryPersonAddress);
+
     deliveryPerson.addressId = deliveryPersonAddress.id;
+    deliveryPersonAddress.deliveryPersonId = deliveryPerson.id;
 
     await this.deliveryPersonRepository.create({
       deliveryPerson,

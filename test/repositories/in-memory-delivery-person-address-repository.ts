@@ -1,6 +1,8 @@
 import { DeliveryPersonAddressRepository } from '@/domain/delivery/application/repositories/delivery-person-address-repository';
 import { DeliveryPersonAddress } from '@/domain/delivery/enterprise/entities/delivery-person-address';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class InMemoryDeliveryPersonAddressRepository
   implements DeliveryPersonAddressRepository
 {
@@ -27,5 +29,17 @@ export class InMemoryDeliveryPersonAddressRepository
     );
 
     this.items = newItemsList;
+  }
+
+  async save(address: DeliveryPersonAddress): Promise<void> {
+    const itemIndex = this.items.findIndex((item) =>
+      item.id.equals(address.id),
+    );
+
+    if (itemIndex === -1) {
+      return;
+    }
+
+    this.items[itemIndex] = address;
   }
 }

@@ -47,11 +47,7 @@ describe('On Change Order Address', () => {
 
     sendNotificationExecuteSpy = vi.spyOn(sendNotificationUseCase, 'execute');
 
-    new OnChangeOrderAddress(
-      orderRepository,
-      orderAddressRepository,
-      sendNotificationUseCase,
-    );
+    new OnChangeOrderAddress(orderRepository, sendNotificationUseCase);
   });
 
   it('should be able to send a notification when an order be created', async () => {

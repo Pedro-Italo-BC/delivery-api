@@ -10,4 +10,5 @@ export abstract class OrderAddressRepository {
     order: Order,
     params: PaginationParams,
   ): Promise<OrderAddress[]>;
+  abstract save(address: OrderAddress): Promise<void>;
 }

@@ -6,9 +6,10 @@ import { DeliveryPersonAddress } from '@/domain/delivery/enterprise/entities/del
 import { Order } from '@/domain/delivery/enterprise/entities/order';
 import { OrderAddress } from '@/domain/delivery/enterprise/entities/order-address';
 import { OrderAddressRepository } from '@/domain/delivery/application/repositories/order-address-repository';
-import { PrismaOrderMapper } from '../mappers/prisma-order-mapper';
+import { PrismaOrderRepositoryMapper } from '../mappers/prisma-order-repository-mapper';
 import { Order as PrismaOrder } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
+import { DomainEvents } from '@/core/events/domain-events';
 
 @Injectable()
 export class PrismaOrderRepository implements OrderRepository {
@@ -26,17 +27,18 @@ export class PrismaOrderRepository implements OrderRepository {
     currentAddress: OrderAddress;
     deliveryAddress: OrderAddress;
   }): Promise<void> {
-    const data = PrismaOrderMapper.toPrisma(order);
+    const data = PrismaOrderRepositoryMapper.toPrisma(order);
+    await this.prisma.order.create({ data }),
+      Promise.all([
+        await this.orderAddressRepository.save(currentAddress),
+        await this.orderAddressRepository.save(deliveryAddress),
+      ]);
 
-    Promise.all([
-      await this.prisma.order.create({ data }),
-      await this.orderAddressRepository.create(currentAddress),
-      await this.orderAddressRepository.create(deliveryAddress),
-    ]);
+    DomainEvents.dispatchEventsForAggregate(order.id);
   }
 
   async save(order: Order): Promise<void> {
-    const data = PrismaOrderMapper.toPrisma(order);
+    const data = PrismaOrderRepositoryMapper.toPrisma(order);
 
     await this.prisma.order.update({
       where: {
@@ -66,7 +68,7 @@ export class PrismaOrderRepository implements OrderRepository {
       },
     });
 
-    return order ? PrismaOrderMapper.toDomain(order) : null;
+    return order ? PrismaOrderRepositoryMapper.toDomain(order) : null;
   }
 
   async findManyNearToDeliveryPersonAddress(
@@ -115,7 +117,7 @@ export class PrismaOrderRepository implements OrderRepository {
   OFFSET ${(page - 1) * 20}
   `;
 
-    return nearOrders.map(PrismaOrderMapper.toDomain);
+    return nearOrders.map(PrismaOrderRepositoryMapper.toDomain);
   }
 
   async findManyDeliveredOrdersByDeliveryPerson(
@@ -132,6 +134,6 @@ export class PrismaOrderRepository implements OrderRepository {
       skip: (page - 1) * 20,
     });
 
-    return deliveredOrders.map(PrismaOrderMapper.toDomain);
+    return deliveredOrders.map(PrismaOrderRepositoryMapper.toDomain);
   }
 }

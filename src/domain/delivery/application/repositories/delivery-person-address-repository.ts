@@ -6,4 +6,5 @@ export abstract class DeliveryPersonAddressRepository {
     deliveryPersonId: string,
   ): Promise<void>;
   abstract findById(id: string): Promise<DeliveryPersonAddress | null>;
+  abstract save(address: DeliveryPersonAddress): Promise<void>;
 }

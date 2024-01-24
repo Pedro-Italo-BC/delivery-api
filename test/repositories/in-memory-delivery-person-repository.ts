@@ -3,7 +3,9 @@ import { DeliveryPerson } from 'src/domain/delivery/enterprise/entities/delivery
 import { InMemoryDeliveryPersonAddressRepository } from './in-memory-delivery-person-address-repository';
 import { DeliveryPersonAddress } from '@/domain/delivery/enterprise/entities/delivery-person-address';
 import { CPF } from '@/domain/delivery/enterprise/entities/value-object/cpf';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class InMemoryDeliveryPersonRepository
   implements DeliveryPersonRepository
 {
@@ -21,7 +23,7 @@ export class InMemoryDeliveryPersonRepository
     deliveryPersonAddress: DeliveryPersonAddress;
   }): Promise<void> {
     this.items.push(deliveryPerson);
-    await this.inMemoryDeliveryPersonAddressRepository.create(
+    await this.inMemoryDeliveryPersonAddressRepository.save(
       deliveryPersonAddress,
     );
   }

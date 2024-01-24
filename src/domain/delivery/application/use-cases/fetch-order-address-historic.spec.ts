@@ -35,9 +35,10 @@ describe('Fetch Order Address Historic', () => {
 
     for (let i = 1; i <= 22; i++) {
       const orderAddress = makeOrderAddress({ orderId: order.id });
+
       orderAddressRepository.items.push(orderAddress);
 
-      order.addressId = orderAddress.id;
+      order.currentAddressId = orderAddress.id;
       orderRepository.save(order);
     }
 

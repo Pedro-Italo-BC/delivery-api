@@ -53,7 +53,7 @@ describe('On Picked-up Order', () => {
   it('should be able to send a notification when an order be piked-up', async () => {
     const orderAddress = makeOrderAddress();
     orderAddressRepository.items.push(orderAddress);
-    const order = makeOrder({ addressId: orderAddress.id });
+    const order = makeOrder({ currentAddressId: orderAddress.id });
     orderRepository.items.push(order);
 
     const deliveryPersonAddress = makeDeliveryPersonAddress();

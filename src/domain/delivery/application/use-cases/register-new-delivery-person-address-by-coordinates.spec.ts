@@ -2,7 +2,6 @@ import { InMemoryDeliveryPersonAddressRepository } from 'test/repositories/in-me
 import { RegisterNewDeliveryPersonAddressByCoordinatesUseCase } from './register-new-delivery-person-address-by-coordinates';
 import { InMemoryAdminRepository } from 'test/repositories/in-memory-admin-repository';
 import { InMemoryDeliveryPersonRepository } from 'test/repositories/in-memory-delivery-person-repository';
-import { FakeGeolocationSearch } from 'test/geolocation/fake-geolocation-search';
 import { makeAdmin } from 'test/factories/make-admin';
 import { makeDeliveryPerson } from 'test/factories/make-delivery-person';
 import { makeDeliveryPersonAddress } from 'test/factories/make-delivery-person-address';
@@ -12,7 +11,6 @@ import { DeliveryPersonDoesNotExistsError } from './errors/delivery-person-does-
 let adminRepository: InMemoryAdminRepository;
 let deliveryPersonAddressRepository: InMemoryDeliveryPersonAddressRepository;
 let deliveryPersonRepository: InMemoryDeliveryPersonRepository;
-let fakeGeolocationSearch: FakeGeolocationSearch;
 
 let sut: RegisterNewDeliveryPersonAddressByCoordinatesUseCase;
 
@@ -24,11 +22,9 @@ describe('Register New Delivery-Person-Address By Coordinates', () => {
     deliveryPersonRepository = new InMemoryDeliveryPersonRepository(
       deliveryPersonAddressRepository,
     );
-    fakeGeolocationSearch = new FakeGeolocationSearch();
     sut = new RegisterNewDeliveryPersonAddressByCoordinatesUseCase(
       adminRepository,
       deliveryPersonRepository,
-      fakeGeolocationSearch,
     );
   });
 

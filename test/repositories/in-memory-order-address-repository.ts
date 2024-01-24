@@ -3,7 +3,9 @@ import { PaginationParams } from '@/core/repositories/pagination-params';
 import { OrderAddressRepository } from '@/domain/delivery/application/repositories/order-address-repository';
 import { Order } from '@/domain/delivery/enterprise/entities/order';
 import { OrderAddress } from '@/domain/delivery/enterprise/entities/order-address';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class InMemoryOrderAddressRepository implements OrderAddressRepository {
   public items: OrderAddress[] = [];
 
@@ -37,5 +39,17 @@ export class InMemoryOrderAddressRepository implements OrderAddressRepository {
       .slice((page - 1) * 20, page * 20);
 
     return orderAddressList;
+  }
+
+  async save(address: OrderAddress) {
+    const itemIndex = this.items.findIndex((item) =>
+      item.id.equals(address.id),
+    );
+
+    if (itemIndex === -1) {
+      return;
+    }
+
+    this.items[itemIndex] = address;
   }
 }

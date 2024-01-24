@@ -1,6 +1,5 @@
 import { InMemoryAdminRepository } from 'test/repositories/in-memory-admin-repository';
 import { InMemoryOrderAddressRepository } from 'test/repositories/in-memory-order-address-repository';
-import { FakeGeolocationSearch } from 'test/geolocation/fake-geolocation-search';
 import { RegisterOrderAddressByCoordinatesUseCase } from './register-order-address-by-coordinates';
 import { makeAdmin } from 'test/factories/make-admin';
 import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
@@ -11,7 +10,6 @@ import { OrderDoesNotExistsError } from './errors/order-does-not-exists-error';
 let adminRepository: InMemoryAdminRepository;
 let orderAddressRepository: InMemoryOrderAddressRepository;
 let orderRepository: InMemoryOrderRepository;
-let fakeGeolocationSearch: FakeGeolocationSearch;
 let sut: RegisterOrderAddressByCoordinatesUseCase;
 
 describe('Create Order-Address By Coordinates', () => {
@@ -19,13 +17,11 @@ describe('Create Order-Address By Coordinates', () => {
     adminRepository = new InMemoryAdminRepository();
     orderAddressRepository = new InMemoryOrderAddressRepository();
     orderRepository = new InMemoryOrderRepository(orderAddressRepository);
-    fakeGeolocationSearch = new FakeGeolocationSearch();
 
     sut = new RegisterOrderAddressByCoordinatesUseCase(
       adminRepository,
       orderAddressRepository,
       orderRepository,
-      fakeGeolocationSearch,
     );
   });
 

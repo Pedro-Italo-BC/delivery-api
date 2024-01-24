@@ -4,14 +4,15 @@ import { InMemoryDeliveryPersonRepository } from 'test/repositories/in-memory-de
 import { makeAdmin } from 'test/factories/make-admin';
 import { FakeHasher } from 'test/cryptography/fake-hasher';
 import { InMemoryDeliveryPersonAddressRepository } from 'test/repositories/in-memory-delivery-person-address-repository';
-import { FakeGeolocationSearch } from 'test/geolocation/fake-geolocation-search';
 import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
+import { makeDeliveryPerson } from 'test/factories/make-delivery-person';
+import { CPF } from '../../enterprise/entities/value-object/cpf';
+import { DeliveryPersonAlredyExistsError } from './errors/delivery-person-alredy-exists';
 
 let adminRepository: InMemoryAdminRepository;
 let deliveryPersonRepository: InMemoryDeliveryPersonRepository;
 let deliveryPersonAddressRepository: InMemoryDeliveryPersonAddressRepository;
 let hashGenerator: FakeHasher;
-let fakeGeolocationSearch: FakeGeolocationSearch;
 let sut: RegisterDeliveryPersonUseCase;
 
 describe('Register Delivery-Person', () => {
@@ -23,12 +24,11 @@ describe('Register Delivery-Person', () => {
       deliveryPersonAddressRepository,
     );
     hashGenerator = new FakeHasher();
-    fakeGeolocationSearch = new FakeGeolocationSearch();
     sut = new RegisterDeliveryPersonUseCase(
       adminRepository,
       deliveryPersonRepository,
+      deliveryPersonAddressRepository,
       hashGenerator,
-      fakeGeolocationSearch,
     );
   });
 
@@ -43,13 +43,8 @@ describe('Register Delivery-Person', () => {
       name: 'John Doe',
       password: '123456',
       addressInfo: {
-        cep: '12345-678',
-        city: 'FakeCity',
-        district: 'FakeDistrict',
-        number: '123',
-        state: 'FakeState',
-        complement: 'FakeComplement',
-        street: 'FakeStreet',
+        latitude: -45.6221634,
+        longitude: -10.4907302,
       },
     });
 
@@ -67,13 +62,8 @@ describe('Register Delivery-Person', () => {
       name: 'John Doe',
       password: '123456',
       addressInfo: {
-        cep: '12345-678',
-        city: 'FakeCity',
-        district: 'FakeDistrict',
-        number: '123',
-        state: 'FakeState',
-        complement: 'FakeComplement',
-        street: 'FakeStreet',
+        latitude: -45.6221634,
+        longitude: -10.4907302,
       },
     });
 
@@ -81,5 +71,30 @@ describe('Register Delivery-Person', () => {
     expect(deliveryPersonRepository.items.length).toEqual(0);
     expect(result.value).toBeInstanceOf(NotAllowedError);
     expect(deliveryPersonAddressRepository.items.length).toEqual(0);
+  });
+
+  it('should not be able to register a delivery-person if the delivery-person alredy exists', async () => {
+    const admin = makeAdmin();
+    adminRepository.items.push(admin);
+
+    const deliveryPerson = makeDeliveryPerson({
+      cpf: CPF.create('12345678909'),
+    });
+
+    deliveryPersonRepository.items.push(deliveryPerson);
+
+    const result = await sut.execute({
+      adminId: admin.id.toString(),
+      cpf: '12345678909',
+      name: 'John Doe',
+      password: '123456',
+      addressInfo: {
+        latitude: -45.6221634,
+        longitude: -10.4907302,
+      },
+    });
+
+    expect(result.isLeft()).toEqual(true);
+    expect(result.value).toBeInstanceOf(DeliveryPersonAlredyExistsError);
   });
 });

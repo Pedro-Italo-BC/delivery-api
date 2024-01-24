@@ -1,7 +1,6 @@
 import { Either, left, right } from '@/core/either';
 import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
 import { AdminRepository } from '../repositories/admin-repository';
-import { AddressByCoordinates } from '../geolocation/address-by-coordinates';
 import { DeliveryPersonAddress } from '../../enterprise/entities/delivery-person-address';
 import { DeliveryPersonRepository } from '../repositories/delivery-person-repository';
 import { DeliveryPersonDoesNotExistsError } from './errors/delivery-person-does-not-exists-error';
@@ -25,7 +24,6 @@ export class RegisterNewDeliveryPersonAddressByCoordinatesUseCase {
   constructor(
     private adminRepository: AdminRepository,
     private deliveryPersonRepository: DeliveryPersonRepository,
-    private addressCoordinates: AddressByCoordinates,
   ) {}
 
   async execute({
@@ -47,14 +45,9 @@ export class RegisterNewDeliveryPersonAddressByCoordinatesUseCase {
       return left(new DeliveryPersonDoesNotExistsError(deliveryPersonId));
     }
 
-    const deliverypersonAddressInfo =
-      await this.addressCoordinates.getByCoordinates({
-        latitude,
-        longitude,
-      });
-
     const deliverypersonAddress = DeliveryPersonAddress.create({
-      ...deliverypersonAddressInfo,
+      latitude,
+      longitude,
       deliveryPersonId: deliveryPerson.id,
     });
 

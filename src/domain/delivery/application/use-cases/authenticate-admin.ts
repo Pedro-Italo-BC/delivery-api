@@ -4,6 +4,7 @@ import { AdminRepository } from '../repositories/admin-repository';
 import { HashComparer } from '../cryptography/hash-comparer';
 import { Encrypter } from '../cryptography/encrypter';
 import { CPF } from '../../enterprise/entities/value-object/cpf';
+import { Injectable } from '@nestjs/common';
 
 interface AuthenticateAdminUseCaseRequest {
   cpf: string;
@@ -16,6 +17,7 @@ type AuthenticateAdminUseCaseResponse = Either<
   }
 >;
 
+@Injectable()
 export class AuthenticateAdminUseCase {
   constructor(
     private adminRepository: AdminRepository,

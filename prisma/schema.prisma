@@ -19,9 +19,8 @@ model User {
   password String
 
   role          UserRole       @default(DELIVERY_PERSON)
-  addressId     String?        @map("address_id")
-  address       Address?       @relation(fields: [addressId], references: [id])
   notifications Notification[]
+  addressId     String?        @map("address_id")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
@@ -57,22 +56,14 @@ model Order {
 }
 
 model Address {
-  id         String   @unique @default(uuid())
-  city       String
-  district   String
-  cep        String
-  number     String
-  state      String
-  complement String?
-  street     String
-  longitude  Float
-  latitude   Float
-  createdAt  DateTime @default(now()) @map("created_at")
+  id        String   @unique @default(uuid())
+  longitude Float
+  latitude  Float
+  createdAt DateTime @default(now()) @map("created_at")
 
   orderId          String? @map("order_id")
   deliveryPersonId String? @map("delivery_person_id")
 
-  users         User[]
   DeliveryOrder Order[] @relation("delivery_order_address")
   CurrentOrder  Order[] @relation("current_order_address")
 

@@ -3,6 +3,8 @@ import { ResourceNotFoundError } from '@/core/errors/errors/resource-not-found-e
 import { OrderRepository } from '../repositories/order-repository';
 import { DeliveryPersonRepository } from '../repositories/delivery-person-repository';
 import { Order } from '../../enterprise/entities/order';
+import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
+import { Injectable } from '@nestjs/common';
 
 interface PickUpOrderUseCaseRequest {
   orderId: string;
@@ -10,10 +12,11 @@ interface PickUpOrderUseCaseRequest {
 }
 
 type PickUpOrderUseCaseResponse = Either<
-  ResourceNotFoundError,
+  ResourceNotFoundError | NotAllowedError,
   { order: Order }
 >;
 
+@Injectable()
 export class PickUpOrderUseCase {
   constructor(
     private orderRepository: OrderRepository,
@@ -24,16 +27,16 @@ export class PickUpOrderUseCase {
     deliveryPersonId,
     orderId,
   }: PickUpOrderUseCaseRequest): Promise<PickUpOrderUseCaseResponse> {
-    const order = await this.orderRepository.findById(orderId);
-
-    if (!order) {
-      return left(new ResourceNotFoundError());
-    }
-
     const deliveryPerson =
       await this.deliveryPersonRepository.findById(deliveryPersonId);
 
     if (!deliveryPerson) {
+      return left(new NotAllowedError());
+    }
+
+    const order = await this.orderRepository.findById(orderId);
+
+    if (!order) {
       return left(new ResourceNotFoundError());
     }
 

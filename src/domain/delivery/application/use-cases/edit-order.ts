@@ -52,7 +52,7 @@ export class EditOrderUseCase {
       return left(new ResourceNotFoundError());
     }
 
-    order.addressId = new UniqueEntityID(addressId);
+    order.currentAddressId = new UniqueEntityID(addressId);
     order.deliveryPersonId = new UniqueEntityID(deliveryPersonId);
     order.content = content;
     order.status = status;

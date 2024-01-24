@@ -4,6 +4,7 @@ import { HashComparer } from '../cryptography/hash-comparer';
 import { Encrypter } from '../cryptography/encrypter';
 import { CPF } from '../../enterprise/entities/value-object/cpf';
 import { DeliveryPersonRepository } from '../repositories/delivery-person-repository';
+import { Injectable } from '@nestjs/common';
 
 interface AuthenticateDeliveryPersonUseCaseRequest {
   cpf: string;
@@ -16,6 +17,7 @@ type AuthenticateDeliveryPersonUseCaseResponse = Either<
   }
 >;
 
+@Injectable()
 export class AuthenticateDeliveryPersonUseCase {
   constructor(
     private deliveryPersonRepository: DeliveryPersonRepository,

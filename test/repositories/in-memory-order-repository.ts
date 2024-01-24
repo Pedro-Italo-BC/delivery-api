@@ -7,7 +7,9 @@ import { getAddressDistance } from 'test/utils/get-address-distance';
 import { PaginationParams } from '@/core/repositories/pagination-params';
 import { DeliveryPerson } from '@/domain/delivery/enterprise/entities/delivery-person';
 import { DomainEvents } from '@/core/events/domain-events';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class InMemoryOrderRepository implements OrderRepository {
   public items: Order[] = [];
 
@@ -25,8 +27,8 @@ export class InMemoryOrderRepository implements OrderRepository {
     deliveryAddress: OrderAddress;
   }): Promise<void> {
     this.items.push(order);
-    await this.inMemoryOrderAddressRepository.create(currentAddress);
-    await this.inMemoryOrderAddressRepository.create(deliveryAddress);
+    await this.inMemoryOrderAddressRepository.save(currentAddress);
+    await this.inMemoryOrderAddressRepository.save(deliveryAddress);
 
     DomainEvents.dispatchEventsForAggregate(order.id);
   }

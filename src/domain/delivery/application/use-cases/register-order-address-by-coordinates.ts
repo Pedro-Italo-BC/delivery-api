@@ -1,7 +1,6 @@
 import { Either, left, right } from '@/core/either';
 import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
 import { AdminRepository } from '../repositories/admin-repository';
-import { AddressByCoordinates } from '../geolocation/address-by-coordinates';
 import { OrderAddressRepository } from '../repositories/order-address-repository';
 import { OrderAddress } from '../../enterprise/entities/order-address';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
@@ -28,7 +27,6 @@ export class RegisterOrderAddressByCoordinatesUseCase {
     private adminRepository: AdminRepository,
     private orderAddressRepository: OrderAddressRepository,
     private orderRepository: OrderRepository,
-    private addressByCoordinates: AddressByCoordinates,
   ) {}
 
   async execute({
@@ -49,13 +47,9 @@ export class RegisterOrderAddressByCoordinatesUseCase {
       return left(new OrderDoesNotExistsError(orderId));
     }
 
-    const orderAddressInfo = await this.addressByCoordinates.getByCoordinates({
+    const orderAddress = OrderAddress.create({
       latitude,
       longitude,
-    });
-
-    const orderAddress = OrderAddress.create({
-      ...orderAddressInfo,
       orderId: new UniqueEntityID(orderId),
     });
 

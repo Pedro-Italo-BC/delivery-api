@@ -11,14 +11,22 @@ export class DeliveryPersonAddress extends Address<DeliveryPersonAddressProps> {
     return this.props.deliveryPersonId;
   }
 
+  set deliveryPersonId(value: UniqueEntityID) {
+    this.props.deliveryPersonId = value;
+  }
+
   static create(
-    props: Optional<DeliveryPersonAddressProps, 'createdAt'>,
+    props: Optional<
+      DeliveryPersonAddressProps,
+      'createdAt' | 'deliveryPersonId'
+    >,
     id?: UniqueEntityID,
   ) {
     const deliveryPersonAddress = new DeliveryPersonAddress(
       {
         ...props,
         createdAt: props.createdAt ?? new Date(),
+        deliveryPersonId: props.deliveryPersonId ?? new UniqueEntityID(),
       },
       id,
     );

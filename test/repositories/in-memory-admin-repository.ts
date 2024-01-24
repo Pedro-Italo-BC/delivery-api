@@ -1,7 +1,9 @@
 import { CPF } from '@/domain/delivery/enterprise/entities/value-object/cpf';
+import { Injectable } from '@nestjs/common';
 import { AdminRepository } from 'src/domain/delivery/application/repositories/admin-repository';
 import { Admin } from 'src/domain/delivery/enterprise/entities/admin';
 
+@Injectable()
 export class InMemoryAdminRepository implements AdminRepository {
   public items: Admin[] = [];
 

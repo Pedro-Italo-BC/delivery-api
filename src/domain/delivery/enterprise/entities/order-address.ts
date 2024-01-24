@@ -10,14 +10,19 @@ export class OrderAddress extends Address<OrderAddressProps> {
     return this.props.orderId;
   }
 
+  set orderId(value: UniqueEntityID) {
+    this.props.orderId = value;
+  }
+
   static create(
-    props: Optional<OrderAddressProps, 'createdAt'>,
+    props: Optional<OrderAddressProps, 'createdAt' | 'orderId'>,
     id?: UniqueEntityID,
   ) {
     const orderAddress = new OrderAddress(
       {
         ...props,
         createdAt: props.createdAt ?? new Date(),
+        orderId: props.orderId ?? new UniqueEntityID(),
       },
       id,
     );
